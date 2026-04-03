@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webinar Launch Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --surface: #111114;
+    --surface2: #17171b;
+    --border: #222228;
+    --border2: #2a2a32;
+    --text: #e8e8f0;
+    --muted: #5a5a6e;
+    --muted2: #3a3a4a;
+    --green: #00e5a0;
+    --green-dim: rgba(0,229,160,0.12);
+    --yellow: #f5c842;
+    --yellow-dim: rgba(245,200,66,0.12);
+    --red: #ff4757;
+    --red-dim: rgba(255,71,87,0.12);
+    --cyan: #00cfff;
+    --cyan-dim: rgba(0,207,255,0.1);
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-brand {
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    margin-right: auto;
+  }
+  .header-brand span { color: var(--cyan); }
+
+  .connector-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .connector-pill strong { color: var(--text); font-weight: 500; }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .dot.yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+
+  /* MAIN */
+  .main { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .kpi-card:hover { border-color: var(--border2); }
+  .kpi-card.status-green { border-top: 2px solid var(--green); }
+  .kpi-card.status-yellow { border-top: 2px solid var(--yellow); }
+  .kpi-card.status-red { border-top: 2px solid var(--red); }
+  .kpi-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .kpi-value {
+    font-family: var(--font-head);
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .kpi-value.red { color: var(--red); }
+  .kpi-value.green { color: var(--green); }
+  .kpi-value.normal { color: var(--text); }
+  .kpi-sub {
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .kpi-badge {
+    background: var(--red-dim);
+    color: var(--red);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 9px;
+    font-weight: 600;
+  }
+  .kpi-badge.green { background: var(--green-dim); color: var(--green); }
+  .kpi-badge.yellow { background: var(--yellow-dim); color: var(--yellow); }
+
+  /* STATUS BAR TOP */
+  .status-bar-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+    align-items: center;
+  }
+  .status-chip {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+  }
+  .status-chip.green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+  .status-chip.red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+  .status-chip.yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(245,200,66,0.3); }
+
+  /* TRAFFIC SOURCE */
+  .traffic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .traffic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 16px;
+  }
+  .traffic-stat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .traffic-icon { font-size: 22px; }
+  .traffic-label { font-size: 9px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+  .traffic-num {
+    font-family: var(--font-head);
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    margin-right: 10px;
+  }
+  .pct-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 5px;
+    vertical-align: middle;
+  }
+  .pct-badge.cyan { background: rgba(0,207,255,0.12); color: var(--cyan); border: 1px solid rgba(0,207,255,0.25); }
+  .pct-badge.green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,229,160,0.25); }
+  .traffic-bar-wrap {
+    height: 4px;
+    background: var(--border2);
+    border-radius: 2px;
+    margin-top: 16px;
+    overflow: hidden;
+    display: flex;
+  }
+  .traffic-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+  .traffic-bar-fill.cyan { background: var(--cyan); }
+  .traffic-bar-fill.green { background: var(--green); }
+
+  /* CONVERSION RATES */
+  .conv-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .conv-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 16px;
+  }
+  .conv-label { font-size: 9px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+  .conv-bar-wrap {
+    height: 3px;
+    background: var(--border2);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .conv-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--muted2);
+    border-radius: 2px;
+  }
+  .conv-value {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .conv-target { font-size: 9px; color: var(--muted); }
+
+  /* FUNNEL FLOW */
+  .funnel-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .funnel-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+  .funnel-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 80px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+    position: relative;
+  }
+  .funnel-step.active-step { border-color: var(--red); }
+  .funnel-icon { font-size: 18px; margin-bottom: 6px; }
+  .funnel-step-label { font-size: 8px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+  .funnel-step-num {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .funnel-arrow {
+    font-size: 10px;
+    color: var(--muted2);
+    flex-shrink: 0;
+    padding: 0 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 8px;
+    color: var(--muted);
+  }
+  .funnel-rate { font-family: var(--font-mono); font-size: 8px; }
+
+  /* BREAKDOWN TABLE */
+  .breakdown-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .breakdown-table th {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .breakdown-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .breakdown-table tr:hover td { background: var(--surface2); }
+  .breakdown-table td:first-child { color: var(--text); font-weight: 500; }
+  .bench-bar-wrap { height: 4px; background: var(--border2); border-radius: 2px; width: 120px; display: inline-block; vertical-align: middle; overflow: hidden; }
+  .bench-bar-fill { height: 100%; background: var(--muted2); border-radius: 2px; }
+  .no-data-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .needs-fix { color: var(--red); font-size: 10px; font-weight: 700; }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .chart-title {
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .chart-sub { font-size: 10px; color: var(--muted); margin-bottom: 16px; }
+  .chart-legend {
+    display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .chart-legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+  .legend-box { width: 10px; height: 10px; border-radius: 2px; }
+  .legend-dash { width: 16px; height: 2px; border-top: 2px dashed; }
+
+  /* SVG Chart */
+  .bar-chart-wrap { overflow: hidden; }
+  svg text { font-family: var(--font-mono); }
+
+  /* REVENUE TIER */
+  .tier-list { margin-top: 10px; }
+  .tier-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+  }
+  .tier-row:last-child { border-bottom: none; }
+  .tier-name { color: var(--muted); }
+  .tier-val { color: var(--text); font-weight: 600; }
+
+  /* AD PERFORMANCE */
+  .ad-table { width: 100%; border-collapse: collapse; }
+  .ad-table th { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .ad-table td { padding: 10px 10px; font-size: 11px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .ad-empty { color: var(--muted2); font-size: 10px; padding: 20px 0; text-align: center; }
+
+  /* EMAIL/SMS TABLE */
+  .seq-table { width: 100%; border-collapse: collapse; }
+  .seq-table th { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .seq-table td { padding: 10px 10px; font-size: 11px; color: var(--text); border-bottom: 1px solid var(--border); }
+  .seq-table td.sub { color: var(--muted); }
+  .status-pill {
+    font-size: 9px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+    letter-spacing: 0.06em;
+  }
+  .status-pill.no-data { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(245,200,66,0.3); }
+  .status-pill.not-set { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+  .status-pill.active { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+
+  /* REVENUE METRICS */
+  .rev-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .rev-metric {
+    padding: 14px 16px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .rev-metric:nth-child(even) { border-right: none; }
+  .rev-metric:nth-last-child(-n+2) { border-bottom: none; }
+  .rev-metric-label { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .rev-metric-val {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--muted);
+  }
+  .rev-metric-val.highlight { color: var(--text); }
+
+  /* UTM */
+  .utm-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .utm-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .utm-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; }
+  .reg-count-badge {
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    border: 1px solid rgba(0,207,255,0.2);
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .utm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .utm-source-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .utm-source-label { font-size: 10px; color: var(--muted); width: 50px; }
+  .utm-source-bar-wrap { flex: 1; height: 6px; background: var(--border2); border-radius: 3px; overflow: hidden; }
+  .utm-source-bar { height: 100%; border-radius: 3px; }
+  .utm-source-bar.cyan { background: var(--cyan); }
+  .utm-source-bar.green { background: var(--green); }
+  .utm-source-count { font-family: var(--font-head); font-size: 14px; font-weight: 700; min-width: 20px; }
+
+  /* DONUT */
+  .donut-wrap { display: flex; align-items: center; gap: 16px; margin-top: 12px; }
+  .donut-legend-list { display: flex; flex-direction: column; gap: 8px; }
+  .donut-legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted); }
+  .donut-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Campaign table */
+  .campaign-table { width: 100%; border-collapse: collapse; }
+  .campaign-table th { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--border); }
+  .campaign-table td { padding: 10px 8px; font-size: 10px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .no-data-row { text-align: center; color: var(--muted2); font-style: italic; padding: 16px; }
+
+  /* How This Works box */
+  .how-box {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 16px;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .how-box strong { color: var(--text); display: block; margin-bottom: 6px; font-size: 11px; }
+
+  /* REVENUE TREND CHART */
+  .revenue-trend-line { fill: none; stroke: var(--green); stroke-width: 2; }
+  .revenue-trend-area { fill: url(#greenGrad); }
+
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .conv-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .three-col { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 700px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .three-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">LAUNCH<span>TRACK</span></div>
+
+  <div class="connector-pill">
+    <div class="dot red"></div>
+    <strong>Meta Ads</strong> Token expired
+    <span class="status-chip red" style="margin-left:4px">EXPIRED</span>
+  </div>
+  <div class="connector-pill">
+    <div class="dot green"></div>
+    <strong>WebinarJam</strong> API connected, 47 sessions
+    <span class="status-chip green" style="margin-left:4px">CONNECTED</span>
+  </div>
+  <div class="connector-pill">
+    <div class="dot green"></div>
+    <strong>Calendly</strong> Webhook active
+    <span class="status-chip green" style="margin-left:4px">CONNECTED</span>
+  </div>
+  <div class="connector-pill">
+    <div class="dot green"></div>
+    <strong>UTM Tracker</strong> Deployed
+    <span class="status-chip green" style="margin-left:4px">CONNECTED</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- KPIs -->
+  <div>
+    <div class="section-label">
+      Key Performance Indicators
+      <div class="legend" style="margin-left:0">
+        <div class="legend-item"><div class="dot green"></div> On target</div>
+        <div class="legend-item"><div class="dot yellow"></div> Watch</div>
+        <div class="legend-item"><div class="dot red"></div> Action needed</div>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card status-red">
+        <div class="kpi-label">Registrations</div>
+        <div class="kpi-value normal">0</div>
+        <div class="kpi-sub">Target: 100+/session</div>
+      </div>
+      <div class="kpi-card status-red">
+        <div class="kpi-label">Show-Up Rate</div>
+        <div class="kpi-value red">0.0%</div>
+        <div class="kpi-sub">
+          <span class="kpi-badge">vs 40% target</span>
+          0 attendees
+        </div>
+      </div>
+      <div class="kpi-card status-yellow">
+        <div class="kpi-label">Calls Booked</div>
+        <div class="kpi-value normal">0</div>
+        <div class="kpi-sub">0.0% of attendees &nbsp;·&nbsp; Target: 10–15%</div>
+      </div>
+      <div class="kpi-card status-green">
+        <div class="kpi-label">Revenue (EUR)</div>
+        <div class="kpi-value green">€0</div>
+        <div class="kpi-sub">RPR: €0 &nbsp;·&nbsp; Target: €40+ RPR</div>
+      </div>
+      <div class="kpi-card status-yellow">
+        <div class="kpi-label">ROAS</div>
+        <div class="kpi-value normal" style="color:var(--muted)">—</div>
+        <div class="kpi-sub">Spend: €0 &nbsp;·&nbsp; Target: 3–5×</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRAFFIC SOURCE -->
+  <div class="traffic-card">
+    <div class="section-label" style="margin-bottom:0">Traffic Source Breakdown
+      <span class="reg-count-badge" style="margin-left:auto;letter-spacing:0">24 registrations tracked</span>
+    </div>
+    <div class="traffic-grid">
+      <div class="traffic-stat">
+        <div class="traffic-icon">💰</div>
+        <div>
+          <div class="traffic-label">Paid Traffic</div>
+          <div>
+            <span class="traffic-num">17</span>
+            <span class="pct-badge cyan">71%</span>
+          </div>
+        </div>
+      </div>
+      <div class="traffic-stat">
+        <div class="traffic-icon">🌱</div>
+        <div>
+          <div class="traffic-label">Organic Traffic</div>
+          <div>
+            <span class="traffic-num">7</span>
+            <span class="pct-badge green">29%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="traffic-bar-wrap">
+      <div class="traffic-bar-fill cyan" style="width:71%"></div>
+      <div class="traffic-bar-fill green" style="width:29%"></div>
+    </div>
+  </div>
+
+  <!-- CONVERSION RATES -->
+  <div>
+    <div class="section-label">Conversion Rates</div>
+    <div class="conv-grid">
+      <div class="conv-card">
+        <div class="conv-label">Registration Rate</div>
+        <div class="conv-bar-wrap"><div class="conv-bar-fill" style="width:0%"></div></div>
+        <div class="conv-value">—</div>
+        <div class="conv-target">Target: 25–35% · LP clicks → registrations</div>
+      </div>
+      <div class="conv-card">
+        <div class="conv-label">Show-Up Rate</div>
+        <div class="conv-bar-wrap"><div class="conv-bar-fill" style="width:0%"></div></div>
+        <div class="conv-value">—</div>
+        <div class="conv-target">Target: 40–55% · registered → attended</div>
+      </div>
+      <div class="conv-card">
+        <div class="conv-label">Call Book Rate</div>
+        <div class="conv-bar-wrap"><div class="conv-bar-fill" style="width:0%"></div></div>
+        <div class="conv-value">—</div>
+        <div class="conv-target">Target: 10–15% · attendees → calls</div>
+      </div>
+      <div class="conv-card">
+        <div class="conv-label">Close Rate</div>
+        <div class="conv-bar-wrap"><div class="conv-bar-fill" style="width:0%"></div></div>
+        <div class="conv-value">—</div>
+        <div class="conv-target">Target: 25–35% · calls → buyers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL FUNNEL FLOW -->
+  <div class="funnel-card">
+    <div class="section-label">
+      Full Funnel Flow — Conversion Rates Between Every Step
+      <div style="margin-left:auto;display:flex;gap:12px">
+        <span style="font-size:9px;color:var(--green);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>On target</span>
+        <span style="font-size:9px;color:var(--yellow);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--yellow);display:inline-block"></span>Below target</span>
+        <span style="font-size:9px;color:var(--red);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--red);display:inline-block"></span>Needs fix</span>
+      </div>
+    </div>
+
+    <div class="funnel-steps">
+      <div class="funnel-step active-step">
+        <div class="funnel-icon">📣</div>
+        <div class="funnel-step-label">Impressions</div>
+        <div class="funnel-step-num">0</div>
+      </div>
+      <div class="funnel-arrow">—<div class="funnel-rate" style="color:var(--muted2)">CTR<br>tgt:1-2%</div>—</div>
+      <div class="funnel-step">
+        <div class="funnel-icon">🖱</div>
+        <div class="funnel-step-label">Link Clicks</div>
+        <div class="funnel-step-num">0</div>
+      </div>
+      <div class="funnel-arrow">—<div class="funnel-rate" style="color:var(--muted2)">LP LOAD<br>tgt:70-85%</div>—</div>
+      <div class="funnel-step">
+        <div class="funnel-icon">🏠</div>
+        <div class="funnel-step-label">LP Views</div>
+        <div class="funnel-step-num">0</div>
+      </div>
+      <div class="funnel-arrow">—<div class="funnel-rate" style="color:var(--muted2)">REG RATE<br>tgt:25-35%</div>—</div>
+      <div class="funnel-step">
+        <div class="funnel-icon">✅</div>
+        <div class="funnel-step-label">Registrations</div>
+        <div class="funnel-step-num">0</div>
+      </div>
+      <div class="funnel-arrow">—<div class="funnel-rate" style="color:var(--muted2)">SHOW RATE<br>tgt:40-55%</div>—</div>
+      <div class="funnel-step">
+        <div class="funnel-icon">👁</div>
+        <div class="funnel-step-label">Attendees</div>
+        <div class="funnel-step-num">0</div>
+      </div>
+      <div class="funnel-arrow">—<div class="funnel-rate" style="color:var(--muted2)">STAY RATE<br>tgt:60-75%</div>—</div>
+      <div class="funnel-step">
+        <div class="funnel-icon">🎯</div>
+        <div class="funnel-step-label">Stay to Pitch</div>
+        <div class="funnel-step-num">0</div>
+      </div>
+      <div class="funnel-arrow">—<div class="funnel-rate" style="color:var(--muted2)">CTA RATE<br>tgt:10-20%</div>—</div>
+      <div class="funnel-step">
+        <div class="funnel-icon">📞</div>
+        <div class="funnel-step-label">Calls Booked</div>
+        <div class="funnel-step-num">0</div>
+      </div>
+      <div class="funnel-arrow">—<div class="funnel-rate" style="color:var(--muted2)">CLOSE RATE<br>tgt:25-35%</div>—</div>
+      <div class="funnel-step">
+        <div class="funnel-icon">🏆</div>
+        <div class="funnel-step-label">Buyers</div>
+        <div class="funnel-step-num">0</div>
+      </div>
+    </div>
+
+    <!-- STEP BREAKDOWN TABLE -->
+    <div class="section-label" style="margin-top:8px">Step-by-Step Breakdown</div>
+    <table class="breakdown-table">
+      <thead>
+        <tr>
+          <th>Transition</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Your Rate</th>
+          <th>Benchmark</th>
+          <th>Conversion Bar</th>
+          <th>Drop-Off #</th>
+          <th>Opportunity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Impressions → Link Clicks</td>
+          <td>—</td><td>—</td><td>—</td>
+          <td>1–2%</td>
+          <td><div class="bench-bar-wrap"><div class="bench-bar-fill" style="width:0%"></div></div></td>
+          <td><span class="needs-fix">—</span></td>
+          <td><span class="no-data-badge">No Data</span></td>
+        </tr>
+        <tr>
+          <td>Link Clicks → LP Views</td>
+          <td>—</td><td>—</td><td>—</td>
+          <td>70–85%</td>
+          <td><div class="bench-bar-wrap"><div class="bench-bar-fill" style="width:0%"></div></div></td>
+          <td><span class="needs-fix">—</span></td>
+          <td><span class="no-data-badge">No Data</span></td>
+        </tr>
+        <tr>
+          <td>LP Views → Registrations</td>
+          <td>—</td><td>—</td><td>—</td>
+          <td>25–35%</td>
+          <td><div class="bench-bar-wrap"><div class="bench-bar-fill" style="width:0%"></div></div></td>
+          <td><span class="needs-fix">—</span></td>
+          <td><span class="no-data-badge">No Data</span></td>
+        </tr>
+        <tr>
+          <td>Registrations → Attendees</td>
+          <td>—</td><td>—</td><td>—</td>
+          <td>40–55%</td>
+          <td><div class="bench-bar-wrap"><div class="bench-bar-fill" style="width:0%"></div></div></td>
+          <td><span class="needs-fix">—</span></td>
+          <td><span class="no-data-badge">No Data</span></td>
+        </tr>
+        <tr>
+          <td>Attendees → Stay to Pitch</td>
+          <td>—</td><td>—</td><td>—</td>
+          <td>60–75%</td>
+          <td><div class="bench-bar-wrap"><div class="bench-bar-fill" style="width:0%"></div></div></td>
+          <td><span class="needs-fix">—</span></td>
+          <td><span class="no-data-badge">No Data</span></td>
+        </tr>
+        <tr>
+          <td>Stay to Pitch → Calls Booked</td>
+          <td>—</td><td>—</td><td>—</td>
+          <td>10–20%</td>
+          <td><div class="bench-bar-wrap"><div class="bench-bar-fill" style="width:0%"></div></div></td>
+          <td><span class="needs-fix">—</span></td>
+          <td><span class="no-data-badge">No Data</span></td>
+        </tr>
+        <tr>
+          <td>Calls Booked → Buyers</td>
+          <td>—</td><td>—</td><td>—</td>
+          <td>25–35%</td>
+          <td><div class="bench-bar-wrap"><div class="bench-bar-fill" style="width:0%"></div></div></td>
+          <td><span class="needs-fix">—</span></td>
+          <td><span class="no-data-badge">No Data</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REGISTRATIONS VS ATTENDEES + REVENUE BY TIER -->
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="chart-title">Registrations vs Attendees — Weekly Trend</div>
+      <div class="chart-sub">Track show-up rate improvement over time</div>
+      <div class="chart-legend">
+        <div class="chart-legend-item"><div class="legend-box" style="background:#555"></div> Registrations</div>
+        <div class="chart-legend-item"><div class="legend-box" style="background:#333;border:1px solid #555"></div> Attendees</div>
+        <div class="chart-legend-item"><div class="legend-dash" style="border-color:var(--green)"></div> Target Attendees (40%)</div>
+      </div>
+      <div class="bar-chart-wrap">
+        <svg viewBox="0 0 560 200" width="100%" style="overflow:visible">
+          <defs>
+            <pattern id="gridPat" width="80" height="40" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="40" x2="560" y2="40" stroke="#222228" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="560" height="200" fill="url(#gridPat)"/>
+          <!-- Bars: Jan6, Jan13, Jan20, Jan27, Feb3, Feb7, 2026-02-07 -->
+          <!-- Reg bars (dark grey) -->
+          <rect x="10" y="50" width="28" height="120" fill="#2a2a32" rx="2"/>
+          <rect x="90" y="30" width="28" height="140" fill="#2a2a32" rx="2"/>
+          <rect x="170" y="40" width="28" height="130" fill="#2a2a32" rx="2"/>
+          <rect x="250" y="20" width="28" height="150" fill="#2a2a32" rx="2"/>
+          <rect x="330" y="20" width="28" height="150" fill="#2a2a32" rx="2"/>
+          <rect x="410" y="10" width="28" height="160" fill="#2a2a32" rx="2"/>
+          <rect x="490" y="80" width="28" height="90" fill="#2a2a32" rx="2"/>
+          <!-- Attendee bars (lighter) -->
+          <rect x="42" y="150" width="28" height="20" fill="#3a3a4a" rx="2"/>
+          <rect x="122" y="150" width="28" height="20" fill="#3a3a4a" rx="2"/>
+          <rect x="202" y="150" width="28" height="20" fill="#3a3a4a" rx="2"/>
+          <rect x="282" y="130" width="28" height="40" fill="#3a3a4a" rx="2"/>
+          <rect x="362" y="150" width="28" height="20" fill="#3a3a4a" rx="2"/>
+          <rect x="442" y="150" width="28" height="20" fill="#3a3a4a" rx="2"/>
+          <rect x="522" y="155" width="28" height="15" fill="#3a3a4a" rx="2"/>
+          <!-- Target dashed line (40% of ~150 = 60, so y=170-60=110) -->
+          <line x1="0" y1="130" x2="560" y2="115" stroke="#00e5a0" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.7"/>
+          <!-- X labels -->
+          <text x="24" y="195" fill="#5a5a6e" font-size="9" text-anchor="middle">Jan 6</text>
+          <text x="106" y="195" fill="#5a5a6e" font-size="9" text-anchor="middle">Jan 13</text>
+          <text x="186" y="195" fill="#5a5a6e" font-size="9" text-anchor="middle">Jan 20</text>
+          <text x="266" y="195" fill="#5a5a6e" font-size="9" text-anchor="middle">Jan 27</text>
+          <text x="346" y="195" fill="#5a5a6e" font-size="9" text-anchor="middle">Feb 3</text>
+          <text x="426" y="195" fill="#5a5a6e" font-size="9" text-anchor="middle">Feb 7</text>
+          <text x="510" y="195" fill="#5a5a6e" font-size="9" text-anchor="middle">Feb 14</text>
+          <!-- Y labels -->
+          <text x="-4" y="175" fill="#5a5a6e" font-size="8" text-anchor="end">0</text>
+          <text x="-4" y="135" fill="#5a5a6e" font-size="8" text-anchor="end">40</text>
+          <text x="-4" y="95" fill="#5a5a6e" font-size="8" text-anchor="end">60</text>
+          <text x="-4" y="55" fill="#5a5a6e" font-size="8" text-anchor="end">80</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Revenue by Offer Tier</div>
+      <div class="chart-sub">Current session breakdown</div>
+      <div class="tier-list">
+        <div class="tier-row"><span class="tier-name">Five Figure (€1,093)</span><span class="tier-val">€0</span></div>
+        <div class="tier-row"><span class="tier-name">Six Figure (€3,000)</span><span class="tier-val">€0</span></div>
+        <div class="tier-row"><span class="tier-name">Seven Figure (€5,400)</span><span class="tier-val">€0</span></div>
+        <div class="tier-row"><span class="tier-name">Freedom (€8,000)</span><span class="tier-val">€0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UTM ATTRIBUTION -->
+  <div class="utm-card">
+    <div class="utm-header">
+      <span style="font-size:14px">🔗</span>
+      <div class="utm-title">UTM Attribution & Traffic Sources</div>
+      <span class="reg-count-badge">24 registrations tracked</span>
+    </div>
+    <div class="utm-grid">
+      <div>
+        <div class="section-label" style="margin-bottom:12px">Registrations by Traffic Source</div>
+        <div class="utm-source-row">
+          <span class="utm-source-label">paid</span>
+          <div class="utm-source-bar-wrap">
+            <div class="utm-source-bar cyan" style="width:71%"></div>
+          </div>
+          <span class="utm-source-count" style="color:var(--cyan)">17</span>
+        </div>
+        <div class="utm-source-row">
+          <span class="utm-source-label">organic</span>
+          <div class="utm-source-bar-wrap">
+            <div class="utm-source-bar green" style="width:29%"></div>
+          </div>
+          <span class="utm-source-count" style="color:var(--green)">7</span>
+        </div>
+        <div style="margin-top:16px">
+          <div class="section-label" style="margin-bottom:10px">Source Chart</div>
+          <div class="donut-wrap">
+            <svg viewBox="0 0 80 80" width="80" height="80">
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#00cfff" stroke-width="14"
+                stroke-dasharray="133.5 54.7" stroke-dashoffset="0" transform="rotate(-90 40 40)"/>
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#00e5a0" stroke-width="14"
+                stroke-dasharray="54.7 133.5" stroke-dashoffset="-133.5" transform="rotate(-90 40 40)"/>
+              <circle cx="40" cy="40" r="22" fill="#111114"/>
+            </svg>
+            <div class="donut-legend-list">
+              <div class="donut-legend-item"><div class="donut-dot" style="background:var(--cyan)"></div>paid (71%)</div>
+              <div class="donut-legend-item"><div class="donut-dot" style="background:var(--green)"></div>organic (29%)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:12px">Top Campaigns</div>
+        <table class="campaign-table">
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Regs</th>
+              <th>CPR</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" class="no-data-row">No campaign data yet</td></tr>
+          </tbody>
+        </table>
+        <div class="how-box">
+          <strong>How This Works</strong>
+          UTM tracking is automatic. When someone registers via your pages, the footer code detects whether they came from organic or paid traffic, captures all UTM parameters, and sends the data to your tracking sheet. Data updates each time the dashboard refreshes.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AD PERFORMANCE + EMAIL/SMS -->
+  <div class="two-col">
+    <div class="chart-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="chart-title">Ad Performance</div>
+        <span class="status-chip yellow">€0 TOTAL SPEND</span>
+      </div>
+      <table class="ad-table">
+        <thead>
+          <tr>
+            <th>Campaign</th>
+            <th>Spend</th>
+            <th>Impressions</th>
+            <th>CTR</th>
+            <th>CPR</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" class="ad-empty">Add campaigns via "Update Data"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title" style="margin-bottom:16px">Email + SMS Performance</div>
+      <table class="seq-table">
+        <thead>
+          <tr>
+            <th>Sequence</th>
+            <th>Type</th>
+            <th>Open / CTR</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Confirmation</td>
+            <td class="sub">Email</td>
+            <td class="sub">—</td>
+            <td><span class="status-pill no-data">NO DATA</span></td>
+          </tr>
+          <tr>
+            <td>Day-Before</td>
+            <td class="sub">Email</td>
+            <td class="sub">—</td>
+            <td><span class="status-pill no-data">NO DATA</span></td>
+          </tr>
+          <tr>
+            <td>1-Hour</td>
+            <td class="sub">Email</td>
+            <td class="sub">—</td>
+            <td><span class="status-pill no-data">NO DATA</span></td>
+          </tr>
+          <tr>
+            <td>SMS (Instant)</td>
+            <td class="sub">SMS</td>
+            <td class="sub">—</td>
+            <td><span class="status-pill not-set">NOT SET UP</span></td>
+          </tr>
+          <tr>
+            <td>SMS (1-Hour)</td>
+            <td class="sub">SMS</td>
+            <td class="sub">—</td>
+            <td><span class="status-pill not-set">NOT SET UP</span></td>
+          </tr>
+          <tr>
+            <td>SMS (Live Now)</td>
+            <td class="sub">SMS</td>
+            <td class="sub">—</td>
+            <td><span class="status-pill not-set">NOT SET UP</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REVENUE TREND + BREAKDOWN -->
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="chart-title">Revenue Trend</div>
+      <svg viewBox="0 0 500 180" width="100%" style="margin-top:12px;overflow:visible">
+        <defs>
+          <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00e5a0" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#00e5a0" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid lines -->
+        <line x1="0" y1="150" x2="500" y2="150" stroke="#222228" stroke-width="1"/>
+        <line x1="0" y1="110" x2="500" y2="110" stroke="#222228" stroke-width="1"/>
+        <line x1="0" y1="70" x2="500" y2="70" stroke="#222228" stroke-width="1"/>
+        <line x1="0" y1="30" x2="500" y2="30" stroke="#222228" stroke-width="1"/>
+        <!-- Y labels -->
+        <text x="-4" y="153" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="end">€0</text>
+        <text x="-4" y="113" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="end">€500</text>
+        <text x="-4" y="73" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="end">€1,500</text>
+        <text x="-4" y="33" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="end">€3,000</text>
+        <!-- Path -->
+        <path d="M0,150 L70,150 L140,150 L210,150 L280,150 L350,30 L420,30 L490,30"
+          fill="url(#greenGrad)" stroke="none"/>
+        <path d="M0,150 L70,150 L140,150 L210,150 L280,150 L350,30 L420,30 L490,30"
+          class="revenue-trend-line"/>
+        <!-- Dots -->
+        <circle cx="0" cy="150" r="4" fill="#00e5a0"/>
+        <circle cx="70" cy="150" r="4" fill="#00e5a0"/>
+        <circle cx="140" cy="150" r="4" fill="#00e5a0"/>
+        <circle cx="210" cy="150" r="4" fill="#00e5a0"/>
+        <circle cx="280" cy="150" r="4" fill="#00e5a0"/>
+        <circle cx="350" cy="30" r="4" fill="#00e5a0"/>
+        <circle cx="420" cy="30" r="4" fill="#00e5a0"/>
+        <!-- X labels -->
+        <text x="0" y="168" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="middle">Jan 6</text>
+        <text x="70" y="168" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="middle">Jan 13</text>
+        <text x="140" y="168" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="middle">Jan 20</text>
+        <text x="210" y="168" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="middle">Jan 27</text>
+        <text x="280" y="168" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="middle">Feb 3</text>
+        <text x="350" y="168" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="middle">Feb 7</text>
+        <text x="420" y="168" fill="#5a5a6e" font-size="8" font-family="IBM Plex Mono" text-anchor="middle">Feb 14</text>
+      </svg>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title" style="margin-bottom:12px">Revenue by Tier Breakdown</div>
+      <div class="tier-list">
+        <div class="tier-row"><span class="tier-name">Five Figure</span><span class="tier-val" style="color:var(--muted)">€0</span></div>
+        <div class="tier-row"><span class="tier-name">Six Figure</span><span class="tier-val" style="color:var(--muted)">€0</span></div>
+        <div class="tier-row"><span class="tier-name">Seven Figure</span><span class="tier-val" style="color:var(--muted)">€0</span></div>
+        <div class="tier-row"><span class="tier-name">Freedom 100</span><span class="tier-val" style="color:var(--muted)">€0</span></div>
+      </div>
+      <div style="margin-top:16px; border: 1px solid var(--border); border-radius: 8px; overflow:hidden">
+        <div class="rev-metrics">
+          <div class="rev-metric">
+            <div class="rev-metric-label">Revenue Per Registrant</div>
+            <div class="rev-metric-val">—</div>
+          </div>
+          <div class="rev-metric">
+            <div class="rev-metric-label">Revenue Per Attendee</div>
+            <div class="rev-metric-val">—</div>
+          </div>
+          <div class="rev-metric">
+            <div class="rev-metric-label">Avg Order Value</div>
+            <div class="rev-metric-val">—</div>
+          </div>
+          <div class="rev-metric">
+            <div class="rev-metric-label">Total Buyers</div>
+            <div class="rev-metric-val highlight">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</body>
+</html>
